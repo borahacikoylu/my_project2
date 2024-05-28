@@ -21,26 +21,35 @@ for a in range(1, sayfa_sayisi + 1):
     request = req.get("https://www.trendyol.com/sr?mid=" + magaza + "&os=1&pi=" + a)
     html_content = request.text
 
-    pattern_basliklar = r'<span class="prdct-desc-cntnr-name(?: hasRatings)?" title="[^"]+">([^<]+)</span>'
-    
+    #pattern_basliklar = r'<span class="prdct-desc-cntnr-name(?: hasRatings)?" title="[^"]+">([^<]+)</span>'
+    #pattern_basliklar = r'<h3 class="prdct-desc-cntnr-ttl-w"><span class="prdct-desc-cntnr-ttl" title="[^"]+">([^<]+)</span><span class="prdct-desc-cntnr-name hasRatings?" title="[^"]+">([^<]+)</span><div class="product-desc-sub-container"><div class="product-desc-sub-text" title="[^"]+">([^<]+)</div></div></h3>'
     pattern_fiyat = r'<div class="prc-box-dscntd">([^<]+ TL)</div>(?!</span>)'
-
+    #pattern_basliklar=r'<h3 class="prdct-desc-cntnr-ttl-w"><span class="prdct-desc-cntnr-ttl" title="[^"]+">([^<]+)</span><span class="prdct-desc-cntnr-name(?: hasRatings)?" title="[^"]+">([^<]+)</span><div class="product-desc-sub-container"><div class="product-desc-sub-text" title="[^"]+">([^<]+)</div></div></h3>'
+    pattern_basliklar = r'<h3 class="prdct-desc-cntnr-ttl-w"><span class="prdct-desc-cntnr-ttl" title="[^"]+">([^<]+)</span><span class="prdct-desc-cntnr-name(?: hasRatings)?" title="[^"]+">([^<]+)</span><div class="product-desc-sub-container">(?:<div class="product-desc-sub-text" title="[^"]+">([^<]+)</div>)?</div></h3>'
 
 
     pattern_linkler = r'<div class="p-card-chldrn-cntnr card-border".*?><a\s+href="([^"]+)"'
 
-    basliklar = re.findall(pattern_basliklar, html_content)
+    basliklar_ = re.findall(pattern_basliklar, html_content)
     fiyatlar = re.findall(pattern_fiyat, html_content)
     linkler = re.findall(pattern_linkler, html_content)
+    basliklar=[]
+    for a in basliklar_:
+        basliklar.append(a[0] + " " + a[1] + " " + a[2])
+
     
     
    
     for i in range(len(linkler)):
         linkler[i] = "https://www.trendyol.com/pd" + linkler[i]
+    
 
+    print(len(basliklar), len(fiyatlar), len(linkler))
+    
     if len(basliklar) != len(fiyatlar) or len(basliklar) != len(linkler):
         print("Hata! Veri sayıları eşleşmiyor.")
         break
+    
 
     vt = sqlite3.connect("trendyol.db")
     im = vt.cursor()
@@ -58,6 +67,7 @@ for a in range(1, sayfa_sayisi + 1):
     vt.commit()
 
 print("Veriler başarıyla işlendi...")
+
 
 
 
